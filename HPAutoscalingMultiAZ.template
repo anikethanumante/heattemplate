@@ -51,7 +51,7 @@
     },
 
     "DBRootPassword": {
-      "Default": "admin", 
+      "Default": "admin",
       "NoEcho": "true",
       "Description" : "Root password for MySQL",
       "Type": "String",
@@ -61,78 +61,27 @@
       "ConstraintDescription" : "must contain only alphanumeric characters."
     },
 
-   
-    "Minsize1": {
-      "Default": "1",
-      "Description" : "Distribution of choice",
-      "Type": "String",
-      "AllowedValues" : [ "1", "2", "3", "4" ]
-    },
-
-    "Maxsize1": {
-      "Default": "2",
-      "Description" : "Distribution of choice",
-      "Type": "String",
-      "AllowedValues" : [ "2", "3", "4", "5", "6" ]
-    },
-   
-    "ThresholdScaleUPValue": {
-      "Default": "50",
-      "Description" : "Distribution of choice",
-      "Type": "String",
-      "AllowedPattern" :  "[0-9]*",
-    },
-
-   "ThresholdScaleDownValue": {
-      "Default": "15",
-      "Description" : "Distribution of choice",
-      "Type": "String",
-      "AllowedPattern" :  "[0-9]*",
-    },
-    
-   "LoadPeriod": {
-      "Default": "60",
-      "Description" : "Distribution of choice",
-      "Type": "String",
-      "AllowedPattern" :  "[0-9]*",
-    },
-
-
-    "ScalingAdjustmentUp": {
-      "Default": "1",
-      "Description" : "Distribution of choice",
-      "Type": "String",
-      "AllowedValues" : [ "1", "2", "3" ]
-    },
-
-    "ScalingAdjustmentDown": {
-      "Default": "-1",
-      "Description" : "Distribution of choice",
-      "Type": "String",
-      "AllowedValues" : [ "-1", "-2", "-3" ]
-    },
-
     "LinuxDistribution": {
       "Default": "F20",
       "Description" : "Distribution of choice",
       "Type": "String",
-      "AllowedValues" : [ "F20", "F18", "F17", "U10", "RHEL-6.1", "RHEL-6.2", "RHEL-6.3" ]
+      "AllowedValues" : [ "F20","F18", "F17", "U10", "RHEL-6.1", "RHEL-6.2", "RHEL-6.3" ]
     }
   },
 
   "Mappings" : {
     "AWSInstanceType2Arch" : {
-      "m1.tiny"    : { "Arch" : "32" },
-      "m1.small"    : { "Arch" : "32" },
-      "m1.medium"    : { "Arch" : "64" },
-      "m1.large"   : { "Arch" : "64" },
-      "m1.xlarge"   : { "Arch" : "64" }
+      "m1.tiny" : { "Arch" : "32" },
+      "m1.small" : { "Arch" : "32" },
+      "m1.medium" : { "Arch" : "64" },
+      "m1.large" : { "Arch" : "64" },
+      "m1.xlarge" : { "Arch" : "64" }
     },
     "DistroArch2AMI": {
-      "F20"      : { "32" : "F20-i386-cfntools" },
-      "F18"      : { "32" : "F18-i386-cfntools", "64" : "F18-x86_64-cfntools" },
-      "F17"      : { "32" : "F17-i386-cfntools", "64" : "F17-x86_64-cfntools" },
-      "U10"      : { "32" : "U10-i386-cfntools", "64" : "U10-x86_64-cfntools" },
+      "F20" : { "32" : "F20-i386-cfntools" },
+      "F18" : { "32" : "F18-i386-cfntools", "64" : "F18-x86_64-cfntools" },
+      "F17" : { "32" : "F17-i386-cfntools", "64" : "F17-x86_64-cfntools" },
+      "U10" : { "32" : "U10-i386-cfntools", "64" : "U10-x86_64-cfntools" },
       "RHEL-6.1" : { "32" : "rhel61-i386-cfntools", "64" : "rhel61-x86_64-cfntools" },
       "RHEL-6.2" : { "32" : "rhel62-i386-cfntools", "64" : "rhel62-x86_64-cfntools" },
       "RHEL-6.3" : { "32" : "rhel63-i386-cfntools", "64" : "rhel63-x86_64-cfntools" }
@@ -154,8 +103,8 @@
       "Properties" : {
         "AvailabilityZones" : { "Fn::GetAZs" : ""},
         "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
-        "MinSize" : { "Ref" : "Minsize1" },
-        "MaxSize" : { "Ref" : "Maxsize1" },
+        "MinSize" : "1",
+        "MaxSize" : "3",
         "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ]
       }
     },
@@ -166,7 +115,7 @@
         "AdjustmentType" : "ChangeInCapacity",
         "AutoScalingGroupName" : { "Ref" : "WebServerGroup" },
         "Cooldown" : "60",
-        "ScalingAdjustment" : { "Ref" : "ScalingAdjustmentUp"  }
+        "ScalingAdjustment" : "1"
       }
     },
 
@@ -176,7 +125,7 @@
         "AdjustmentType" : "ChangeInCapacity",
         "AutoScalingGroupName" : { "Ref" : "WebServerGroup" },
         "Cooldown" : "60",
-        "ScalingAdjustment" : { "Ref" : "ScalingAdjustmentDown"  }
+        "ScalingAdjustment" : "-1"
       }
     },
 
@@ -187,9 +136,9 @@
         "MetricName": "MemoryUtilization",
         "Namespace": "system/linux",
         "Statistic": "Average",
-        "Period": {"Ref" :  "LoadPeriod"},
+        "Period": "60",
         "EvaluationPeriods": "1",
-        "Threshold": { "Ref" :  "ThresholdScaleUPValue" },
+        "Threshold": "50",
         "AlarmActions": [ { "Ref": "WebServerScaleUpPolicy" } ],
         "Dimensions": [
           {
@@ -207,9 +156,9 @@
         "MetricName": "MemoryUtilization",
         "Namespace": "system/linux",
         "Statistic": "Average",
-        "Period": {"Ref" :  "LoadPeriod"},
+        "Period": "60",
         "EvaluationPeriods": "1",
-        "Threshold": { "Ref" :  "ThresholdScaleDownValue" },
+        "Threshold": "15",
         "AlarmActions": [ { "Ref": "WebServerScaleDownPolicy" } ],
         "Dimensions": [
           {
@@ -252,9 +201,9 @@
                   "AWSSecretKey=", {"Fn::GetAtt": ["WebServerKeys",
                                     "SecretAccessKey"]}, "\n"
                 ]]},
-                "mode"    : "000400",
-                "owner"   : "root",
-                "group"   : "root"
+                "mode" : "000400",
+                "owner" : "root",
+                "group" : "root"
               },
               "/tmp/setup.mysql" : {
                 "content" : { "Fn::Join" : ["", [
@@ -265,7 +214,7 @@
                 "FLUSH PRIVILEGES;\n",
                 "EXIT\n"
                   ]]},
-                "mode"  : "000644",
+                "mode" : "000644",
                 "owner" : "root",
                 "group" : "root"
               },
@@ -278,26 +227,26 @@
                 "* * * * * /opt/aws/bin/cfn-push-stats --watch ",
                 { "Ref" : "MEMAlarmLow" }, " --mem-util\n"
                 ]]},
-                "mode"    : "000600",
-                "owner"   : "root",
-                "group"   : "root"
+                "mode" : "000600",
+                "owner" : "root",
+                "group" : "root"
               }
             },
             "packages" : {
               "yum" : {
                 "python-psutil": [],
-                "cronie"       : [],
-                "mysql"        : [],
+                "cronie" : [],
+                "mysql" : [],
                 "mysql-server" : [],
-                "httpd"        : [],
-                "wordpress"    : []
+                "httpd" : [],
+                "wordpress" : []
               }
             },
             "services" : {
               "systemd" : {
-                "mysqld"   : { "enabled" : "true", "ensureRunning" : "true" },
-                "httpd"    : { "enabled" : "true", "ensureRunning" : "true" },
-                "crond"    : { "enabled" : "true", "ensureRunning" : "true" }
+                "mysqld" : { "enabled" : "true", "ensureRunning" : "true" },
+                "httpd" : { "enabled" : "true", "ensureRunning" : "true" },
+                "crond" : { "enabled" : "true", "ensureRunning" : "true" }
               }
             }
           }
@@ -306,9 +255,9 @@
       "Properties": {
         "ImageId" : { "Fn::FindInMap" : [ "DistroArch2AMI", { "Ref" : "LinuxDistribution" },
                           { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
-        "InstanceType"   : { "Ref" : "InstanceType" },
-        "KeyName"        : { "Ref" : "KeyName" },
-        "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "KeyName" : { "Ref" : "KeyName" },
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
           "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackName" },
           " -r LaunchConfig ",
@@ -337,7 +286,7 @@
   "Outputs" : {
     "URL" : {
       "Description" : "The URL of the website",
-      "Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ]}, "/wordpress"]] }
+      "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ]}, "/wordpress"]] }
     }
   }
 }
