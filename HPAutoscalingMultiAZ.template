@@ -61,11 +61,62 @@
       "ConstraintDescription" : "must contain only alphanumeric characters."
     },
 
+   
+    "Minsize1": {
+      "Default": "1",
+      "Description" : "Distribution of choice",
+      "Type": "String",
+      "AllowedValues" : [ "1", "2", "3", "4" ]
+    },
+
+    "Maxsize1": {
+      "Default": "2",
+      "Description" : "Distribution of choice",
+      "Type": "String",
+      "AllowedValues" : [ "2", "3", "4", "5", "6" ]
+    },
+   
+    "ThresholdScaleUPValue": {
+      "Default": "50",
+      "Description" : "Distribution of choice",
+      "Type": "String",
+      "AllowedPattern" : "[0-9]*",
+    },
+
+   "ThresholdScaleDownValue": {
+      "Default": "15",
+      "Description" : "Distribution of choice",
+      "Type": "String",
+      "AllowedPattern" : "[0-9]*",
+    },
+    
+   "LoadPeriod": {
+      "Default": "60",
+      "Description" : "Distribution of choice",
+      "Type": "String",
+      "AllowedPattern" : "[0-9]*",
+    },
+
+
+    "ScalingAdjustmentUp": {
+      "Default": "1",
+      "Description" : "Distribution of choice",
+      "Type": "String",
+      "AllowedValues" : [ "1", "2", "3" ]
+    },
+
+    "ScalingAdjustmentDown": {
+      "Default": "-1",
+      "Description" : "Distribution of choice",
+      "Type": "String",
+      "AllowedValues" : [ "-1", "-2", "-3" ]
+    },
+
     "LinuxDistribution": {
       "Default": "F20",
       "Description" : "Distribution of choice",
       "Type": "String",
-      "AllowedValues" : [ "F20","F18", "F17", "U10", "RHEL-6.1", "RHEL-6.2", "RHEL-6.3" ]
+      "AllowedValues" : [ "F20", "F18", "F17", "U10", "RHEL-6.1", "RHEL-6.2", "RHEL-6.3" ]
     }
   },
 
@@ -103,8 +154,8 @@
       "Properties" : {
         "AvailabilityZones" : { "Fn::GetAZs" : ""},
         "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
-        "MinSize" : "1",
-        "MaxSize" : "3",
+        "MinSize" : { "Ref" : "Minsize1" },
+        "MaxSize" : { "Ref" : "Maxsize1" },
         "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ]
       }
     },
@@ -115,7 +166,7 @@
         "AdjustmentType" : "ChangeInCapacity",
         "AutoScalingGroupName" : { "Ref" : "WebServerGroup" },
         "Cooldown" : "60",
-        "ScalingAdjustment" : "1"
+        "ScalingAdjustment" : { "Ref" : "ScalingAdjustmentUp" }
       }
     },
 
@@ -125,7 +176,7 @@
         "AdjustmentType" : "ChangeInCapacity",
         "AutoScalingGroupName" : { "Ref" : "WebServerGroup" },
         "Cooldown" : "60",
-        "ScalingAdjustment" : "-1"
+        "ScalingAdjustment" : { "Ref" : "ScalingAdjustmentDown" }
       }
     },
 
@@ -136,9 +187,9 @@
         "MetricName": "MemoryUtilization",
         "Namespace": "system/linux",
         "Statistic": "Average",
-        "Period": "60",
+        "Period": {"Ref" : "LoadPeriod"},
         "EvaluationPeriods": "1",
-        "Threshold": "50",
+        "Threshold": { "Ref" : "ThresholdScaleUPValue" },
         "AlarmActions": [ { "Ref": "WebServerScaleUpPolicy" } ],
         "Dimensions": [
           {
@@ -156,9 +207,9 @@
         "MetricName": "MemoryUtilization",
         "Namespace": "system/linux",
         "Statistic": "Average",
-        "Period": "60",
+        "Period": {"Ref" : "LoadPeriod"},
         "EvaluationPeriods": "1",
-        "Threshold": "15",
+        "Threshold": { "Ref" : "ThresholdScaleDownValue" },
         "AlarmActions": [ { "Ref": "WebServerScaleDownPolicy" } ],
         "Dimensions": [
           {
@@ -290,3 +341,4 @@
     }
   }
 }
+
